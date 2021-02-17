@@ -321,7 +321,7 @@ if __name__ == '__main__':
             
     setattr(options,'pedfile_fullres_name', 'pedestals/pedmap_run%s_rebin1.root' % (options.pedrun))
     
-    options.tmpname = "../RecoMango/data/New/histograms_Run%05d.root" % int(options.run)
+    options.tmpname = "../data/histograms_Run%05d.root" % int(options.run)
 
    # USER = os.environ['USER']
     #tmpdir = '/mnt/ssdcache/' if os.path.exists('/mnt/ssdcache/') else '/tmp/'
