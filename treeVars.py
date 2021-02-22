@@ -42,15 +42,24 @@ class AutoFillTreeProducer:
         self.outTree.branch('{name}_corrintegral'.format(name=name),     'F', lenVar=sizeStr)
         # filled only for the supercluster
         if name=='sc':
-            self.outTree.branch('{name}_nslices'.format(name=name), 'F', lenVar=sizeStr)
-            self.outTree.branch('{name}_energy'.format(name=name),  'F', lenVar=sizeStr)
-            self.outTree.branch('{name}_pathlength'.format(name=name),    'F', lenVar=sizeStr)
-            self.outTree.branch('{name}_energyprof'.format(name=name),    'F', lenVar=sizeStr+'*nSlices')
-            self.outTree.branch('{name}_xprof'.format(name=name),    'F', lenVar=sizeStr+'*nSlices')
-            self.outTree.branch('{name}_yprof'.format(name=name),    'F', lenVar=sizeStr+'*nSlices')
-            self.outTree.branch('{name}_mindist'.format(name=name),  'F', lenVar=sizeStr)
-            self.outTree.branch('{name}_nmatchweak'.format(name=name),  'F', lenVar=sizeStr)
-            self.outTree.branch('{name}_nmatchrobust'.format(name=name),  'F', lenVar=sizeStr)
+            self.outTree.branch('{name}_nslices'.format(name=name),        'F', lenVar=sizeStr)
+            self.outTree.branch('{name}_energy'.format(name=name),         'F', lenVar=sizeStr)
+            ##### MC truth
+#            self.outTree.branch('{name}_MC_pathlength'.format(name=name),  'F', lenVar=sizeStr)
+#            self.outTree.branch('{name}_MC_px'.format(name=name),          'F', lenVar=sizeStr)
+#            self.outTree.branch('{name}_MC_py'.format(name=name),          'F', lenVar=sizeStr)
+#            self.outTree.branch('{name}_MC_pz'.format(name=name),          'F', lenVar=sizeStr)
+#            self.outTree.branch('{name}_MC_x_vertex'.format(name=name),    'F', lenVar=sizeStr)
+#            self.outTree.branch('{name}_MC_y_vertex'.format(name=name),    'F', lenVar=sizeStr)
+#            self.outTree.branch('{name}_MC_z_vertex'.format(name=name),    'F', lenVar=sizeStr)
+            ### end of mc truth
+            self.outTree.branch('{name}_pathlength'.format(name=name),     'F', lenVar=sizeStr)
+            self.outTree.branch('{name}_energyprof'.format(name=name),     'F', lenVar=sizeStr+'*nSlices')
+            self.outTree.branch('{name}_xprof'.format(name=name),          'F', lenVar=sizeStr+'*nSlices')
+            self.outTree.branch('{name}_yprof'.format(name=name),          'F', lenVar=sizeStr+'*nSlices')
+            self.outTree.branch('{name}_mindist'.format(name=name),        'F', lenVar=sizeStr)
+            self.outTree.branch('{name}_nmatchweak'.format(name=name),     'F', lenVar=sizeStr)
+            self.outTree.branch('{name}_nmatchrobust'.format(name=name),   'F', lenVar=sizeStr)
             if self.scfullinfo == True:
                   self.outTree.branch('{name}_ID'.format(name=name), 'I', lenVar=sizeStr+'*nIntpixels')
                   self.outTree.branch('{name}_nintpixels'.format(name=name), 'I', lenVar=sizeStr)

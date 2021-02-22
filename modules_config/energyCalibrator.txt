@@ -7,6 +7,6 @@
 'p1'            : 117038.,
 'norm'          : 1.2,
 'xscale'        : 1.5,
-'sliceRadius'   : 30.,
+'sliceRadius'   : 10.,
 'noiseThr'      : 2.25,
 }
