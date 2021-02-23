@@ -59,15 +59,7 @@ Analyzer::Analyzer(const char* nometh2, int npixel, TH2F *Tracklarge, int npixel
 		}
 	}
 	
-
-	TH1D *tax=fTrack->ProjectionX();
-	tax->Fit("gaus","Q");
-	fxcentr=tax->GetFunction("gaus")->GetParameter(1);
-	TH1D *tay=fTrack->ProjectionY();
-	tay->Fit("gaus","Q");
-	fycentr=tay->GetFunction("gaus")->GetParameter(1);
-	delete tax;
-	delete tay;
+	Barycenter(fxcentr,fycentr);
 	
 	for(int j=1;j<=fnpixelx;j++)
 	{
@@ -164,7 +156,8 @@ void Analyzer::SavetoFile(const char* nometh2)
 //returns histogram pointer
 TH2F* Analyzer::GetHisto()
 {
-	return fTrack;
+	TH2F *copy=(TH2F *)fTrack->Clone();
+	return copy;
 }
 
 //Resets the variables
@@ -186,12 +179,23 @@ void Analyzer::Barycenter(double &XBar, double &YBar)
   double Yb=0;
   double Z=0;
   double ChargeTot=0;
+  double min=0.;
+  
+  for(int i=1;i<fnpixelx;i++)
+  {
+	for(int j=1;j<fnpixely;j++)
+	{
+		if(fTrack->GetBinContent(i,j)<min) min=fTrack->GetBinContent(i,j);
+	}
+  }
+  
+  if(min>0) min=0;  
   
   for(int i=1;i<fnpixelx;i++)
   {
 	for(int j=1;j<fnpixely;j++)
 	{  
-	  Z=fTrack->GetBinContent(i,j);
+	  Z=fTrack->GetBinContent(i,j)+min;
 	  if(Z!=0)
 	  {
 		  Xb+=(Z*i);
@@ -277,4 +281,59 @@ double Analyzer::RMSOnLine(double XBar, double YBar, double Phi)
   }
   
   return RMS/=ChargeTot;
+}
+
+
+
+//Calculates integral and height given the percentage of the radius to be used
+void Analyzer::IntegralAnalysis(double percradius)
+{
+	fheight=0;
+	fintegral=0;
+	double Z=0.;
+	TH1D *tax=fTrack->ProjectionX();
+	tax->Fit("gaus","QR","",fxcentr-percradius*fradius,fxcentr+percradius*fradius);
+	double localxcentr=tax->GetFunction("gaus")->GetParameter(1);
+	TH1D *tay=fTrack->ProjectionY();
+	tay->Fit("gaus","QR","",fycentr-percradius*fradius,fycentr+percradius*fradius);
+	double localycentr=tay->GetFunction("gaus")->GetParameter(1);
+	delete tax;
+	delete tay;
+	
+	//calculates height
+	for(int i=localxcentr-2;i<=localxcentr+2;i++)
+	{
+		for(int j=localycentr-2;j<=localycentr+2;j++)
+		{
+			fheight+=fTrack->GetBinContent(i,j);
+		}
+	}
+	fheight/=25.;
+	
+	for(int i=1;i<fnpixelx;i++)
+	{
+		for(int j=1;j<fnpixely;j++)
+		{  
+			Z=fTrack->GetBinContent(i,j);
+			if(Z!=0)
+			{
+				double dist=sqrt((fycentr-j)*(fycentr-j) + (fxcentr-i)*(fxcentr-i));
+				if(dist<percradius*fradius)
+				{
+					fintegral+=fTrack->GetBinContent(i,j);  
+				}
+			}
+		}
+	}
+	
+	return;
+}
+
+//Function that calculates the RMS on the direction orthogonal to the main direction
+double Analyzer::MaxRMS()
+{
+	double RMS=0.;
+	
+	return RMS;
+	
 }

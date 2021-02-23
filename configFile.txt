@@ -1,9 +1,9 @@
 {
 # DETECTOR
-'geometry'  : 'Mango_full',
+'geometry'  : 'lemon',
 
 # DEBUG plots
-'debug_mode'            : 1,
+'debug_mode'            : 0,
 
 'ev'                    : 1,
 'nclu'                  : -1,        # -1
@@ -35,14 +35,14 @@
 'rebin'                 : 4,
 'nsigma'                : 1.55,
 'cimax'                 : 300,                     # Upper threshold
-'justPedestal'          : False,
+'justPedestal'          : True,
 'daq'                   : 'midas',                 # DAQ type (btf/h5/midas)
 'type'                  : 'neutrons',              # events type (beam/cosmics/neutrons)
 'tag'                   : 'DataMango',                  # 'Data' for experimental data or 'MC' for Simulated data, DataMango for MANGO data at LNGS
 'vignetteCorr'          : False,                    # apply vignetting correction (correction maps in data/ according to the geometry)
 'scfullinfo'            : False,			   # if True some the supercluster pixels info will be saved
 
-'excImages'             : [], #list(range(5))+[],             # To exlude some images of the analysis. Always exclude the first 5 which are messy
+'excImages'             : list(range(400)), #list(range(5))+[],             # To exlude some images of the analysis. Always exclude the first 5 which are messy
 'min_neighbors_average' : 3.5,                     # cut on the minimum average energy around a pixel (remove isolated macro-pixels)
 'donotremove'           : True,                    # Remove or not the file from the tmp folder
 

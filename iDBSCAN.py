@@ -98,7 +98,8 @@ def idbscan(X, iterative = 4, vector_eps = [2.26, 3.5, 2.8, 6], vector_min_sampl
 
     if iterative >= 1:
         #print('indgood: ', sum(indgood))
-
+        #print('indgood: ', indgood)
+        #print(len(indgood))
         Xnew      = X[indgood,:]
         #print('Xnew: ', Xnew)
         indicenew = np.where(indgood == True)[0]
@@ -128,7 +129,10 @@ def idbscan(X, iterative = 4, vector_eps = [2.26, 3.5, 2.8, 6], vector_min_sampl
     if iterative >= 2:
 
         indgood2 = ~np.in1d(db.labels_, clusterI)
+        #print('indgood2: ', indgood2)
+        #print(len(indgood2))
         Xnew2 = Xnew[indgood2,:]
+        #print('Xnew2: ', Xnew2)
         if np.size(Xnew2) > 1:
             indicenew2 = np.where(indgood2 == True)[0]
 
@@ -156,7 +160,13 @@ def idbscan(X, iterative = 4, vector_eps = [2.26, 3.5, 2.8, 6], vector_min_sampl
     if iterative >= 3:
 
         indgood3 = ~np.in1d(db.labels_, clusterI)
-        Xnew3 = Xnew2[indgood3,:]
+        if len(Xnew2)==0 : 
+                    Xnew3=[]
+        #print('indgood3: ',indgood3)
+        #print(len(indgood3))
+        #print(len(Xnew2))
+        else:
+                    Xnew3 = Xnew2[indgood3,:]
         if np.size(Xnew3) > 1:
             indicenew3 = np.where(indgood3 == True)[0]
 

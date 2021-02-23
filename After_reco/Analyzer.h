@@ -32,7 +32,8 @@ class Analyzer {
 	void Barycenter(double &XBar, double &YBar);
 	double AngleLineMaxRMS(double &RMSOnLineVal);
 	double RMSOnLine(double XBar, double YBar, double Phi);
-//	void Analyze(double percrad)
+	void IntegralAnalysis(double percrad);
+	double MaxRMS();
 
 	private:
 	double fintegral;
