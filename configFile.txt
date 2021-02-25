@@ -1,6 +1,6 @@
 {
 # DETECTOR
-'geometry'  : 'lemon',
+'geometry'  : 'Mango_full',
 
 # DEBUG plots
 'debug_mode'            : 0,
