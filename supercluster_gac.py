@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import numpy as np
-from skimage.segmentation import  inverse_gaussian_gradient,morphological_geodesic_active_contour,morphological_chan_vese
+from skimage.segmentation import  inverse_gaussian_gradient,morphological_geodesic_active_contour
 from clusterTools import Cluster
 from scipy.stats import pearsonr
 from energyCalibrator import EnergyCalibrator
@@ -48,8 +48,7 @@ class SuperClusterAlgorithm:
 
     def supercluster(self,clustered_data):
         #print ("clu data = ",clustered_data)
-        gimage =inverse_gaussian_gradient(clustered_data,1.5,1.1)
-#        print("Fatto")
+        gimage = inverse_gaussian_gradient(clustered_data)
         # Initial level set
         # this makes alternate squares active at the first iteration of 10 macro-pixels
         #init_ls = checkerboard_level_set(clustered_data.shape, 10)
@@ -58,14 +57,10 @@ class SuperClusterAlgorithm:
         # List with intermediate results for plotting the evolution
         #evolution = []
         #callback = self.store_evolution_in(evolution)
-#        ls = morphological_geodesic_active_contour(gimage, 400, init_ls,
-#                                                   smoothing=1, balloon=-1,
-#                                                   threshold=0.6)
+        ls = morphological_geodesic_active_contour(gimage, 400, init_ls,
+                                                   smoothing=1, balloon=-1,
+                                                   threshold=0.69)
                                                    #iter_callback=callback)
-        ls = morphological_chan_vese(gimage, 400, init_ls,
-                                     smoothing=1, lambda1=8.,
-                                     lambda2=10.)
-#        print("Bene!")
         return ls
 
     def supercluster_points(self,levels):
@@ -96,6 +91,59 @@ class SuperClusterAlgorithm:
     def findSuperClusters(self,basic_clusters,raw_data,raw_data_fullreso,raw_data_fullreso_zs,iteration):
         superClusters = []; superClusterContours = np.array([])
 
+#        if len(basic_clusters):
+#            # use the clustered points to get "seeds" for superclustering
+#            # i.e. open a window to get back unclustered points with low light
+#            seedsAndNeighbors = self.clusters_neighborood(basic_clusters,raw_data)
+#
+#            # run the superclustering algorithm (GAC with 300 iterations)
+#            superClusterContours = self.supercluster(seedsAndNeighbors)
+#
+#            # get the superclusters with the list of points of each one
+#            superClusterWithPixels = self.supercluster_points(superClusterContours)
+#
+#            # get a cluster object
+#            rebin = int(self.cg.npixx/self.shape)
+#            for i,scpixels in enumerate(superClusterWithPixels):
+#                #print ("===> SC ",i)
+#                sclu = Cluster(scpixels,rebin,raw_data_fullreso,raw_data_fullreso_zs,self.options.geometry,debug=False)
+#                #T2 = time.perf_counter()
+#
+#                sclu.iteration=iteration
+#                sclu.nclu = i
+#                x = scpixels[:, 0]; y = scpixels[:, 1]
+#                corr, p_value = pearsonr(x, y)
+#                sclu.pearson = p_value
+#                ## slicesCalEnergy is useful for the profile along the path
+#                ## this is time-consuming, though
+#                if self.calibrate:
+#                    calEnergy,slicesCalEnergy,centers = self.calibrator.calibratedEnergy(sclu.hits_fr)
+#                    #T3 = time.perf_counter()
+#                    #print(f"\t calibrated in {T3 - T2:0.4f} seconds")
+#                else:
+#                    calEnergy,slicesCalEnergy,centers = -1,[],[]
+#                if self.debug:
+#                    print ( "SUPERCLUSTER BARE INTEGRAL = {integral:.1f}".format(integral=sclu.integral()) )
+#                sclu.calibratedEnergy = calEnergy
+#                sclu.nslices = len(slicesCalEnergy)
+#                sclu.energyprofile = slicesCalEnergy
+#                sclu.centers = centers
+#                sclu.pathlength = -1 if self.calibrate==False else self.calibrator.clusterLength()
+#                superClusters.append(sclu)
+#
+#                # test of the supercluster matcher
+#                # sclu.dumpToFile('sclu_{i}'.format(i=i),zero_suppressed=True)
+#
+#                # test of the skeletonization
+#                # if i==3:
+#                #     print(" === hits list ")
+#                #     print(scpixels)
+#                #     sclu.dumpToFile('supercluster3')
+#
+#
+#        # return the supercluster collection
+#        return superClusters,superClusterContours
+#
         if len(basic_clusters):
             # use the clustered points to get "seeds" for superclustering
             # i.e. open a window to get back unclustered points with low light
@@ -148,7 +196,7 @@ class SuperClusterAlgorithm:
  
                        sclu.xallpixelcoord= sclu.hits_fr[int(sclu.size()/2):int(sclu.size()/2)+1,0]
                        sclu.yallpixelcoord= sclu.hits_fr[int(sclu.size()/2):int(sclu.size()/2)+1,1]
-                       sclu.zallpixel= sclu.hits_fr[int(sclu.size()/2):int(sclu.size()/2)+1,2]   
+                       sclu.zallpixel= sclu.hits_fr[int(sclu.size()/2):int(sclu.size()/2)+1,2]
 
                 x = scpixels[:, 0]; y = scpixels[:, 1]
                 corr, p_value = pearsonr(x, y)

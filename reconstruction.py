@@ -71,6 +71,22 @@ class analysis:
         self.outTree.branch("run", "I")
         self.outTree.branch("event", "I")
         self.outTree.branch("pedestal_run", "I")
+        
+        if self.options.Save_MC_data:
+            self.outTree.branch("MC_track_len","F")
+            self.outTree.branch("MC_px","F")
+            self.outTree.branch("MC_py","F")
+            self.outTree.branch("MC_pz","F")
+            self.outTree.branch("MC_x_vertex","F")
+            self.outTree.branch("MC_y_vertex","F")
+            self.outTree.branch("MC_z_vertex","F")
+            self.outTree.branch("MC_x_vertex_end","F")
+            self.outTree.branch("MC_y_vertex_end","F")
+            self.outTree.branch("MC_z_vertex_end","F")
+            self.outTree.branch("MC_3D_pathlength","F")
+            self.outTree.branch("MC_2D_pathlength","F")
+        
+        
         if self.options.camera_mode:
             self.autotree.createCameraVariables()
             self.autotree.createClusterVariables('cl')
@@ -83,7 +99,8 @@ class analysis:
         self.outputFile.Close()
         
     def getNEvents(self):
-        tf = sw.swift_read_root_file(self.tmpname) #tf = ROOT.TFile.Open(self.rfile)
+#        tf = sw.swift_read_root_file(self.tmpname)
+        tf = ROOT.TFile.Open(self.tmpname)
         ret = int(len(tf.GetListOfKeys())/2) if (self.options.daq=='midas' and self.options.pmt_mode) else len(tf.GetListOfKeys())
         tf.Close()
         return ret
@@ -102,8 +119,8 @@ class analysis:
 
         pedsum = np.zeros((nx,ny))
         
-        tf = sw.swift_read_root_file(self.tmpname)
-        #tf = ROOT.TFile.Open(self.rfile)
+#        tf = sw.swift_read_root_file(self.tmpname)
+        tf = ROOT.TFile.Open(self.tmpname)
 
         # first calculate the mean 
         numev = 0
@@ -175,8 +192,8 @@ class analysis:
         ROOT.gStyle.SetPalette(ROOT.kRainBow)
         savErrorLevel = ROOT.gErrorIgnoreLevel; ROOT.gErrorIgnoreLevel = ROOT.kWarning
 
-        tf = sw.swift_read_root_file(self.tmpname)
-        #tf = ROOT.TFile.Open(self.rfile)
+#        tf = sw.swift_read_root_file(self.tmpname)
+        tf = ROOT.TFile.Open(self.tmpname)
         #c1 = ROOT.TCanvas('c1','',600,600)
         ctools = cameraTools(self.cg)
         print("Reconstructing event range: ",evrange[1],"-",evrange[2])
@@ -213,6 +230,22 @@ class analysis:
                 self.outTree.fillBranch("run",run)
                 self.outTree.fillBranch("event",event)
                 self.outTree.fillBranch("pedestal_run", int(self.options.pedrun))
+                if self.options.Save_MC_data:
+                    mc_tree = tf.Get('track_param')
+                    mc_tree.GetEntry(event)
+                    self.outTree.fillBranch("MC_track_len",mc_tree.MC_track_len)
+                    self.outTree.fillBranch("MC_3D_pathlength",mc_tree.track_length_3D)
+                    self.outTree.fillBranch("MC_px",mc_tree.Px)
+                    self.outTree.fillBranch("MC_py",mc_tree.Py)
+                    self.outTree.fillBranch("MC_pz",mc_tree.Pz)
+                    self.outTree.fillBranch("MC_x_vertex",mc_tree.x_vertex)
+                    self.outTree.fillBranch("MC_y_vertex",mc_tree.y_vertex)
+                    self.outTree.fillBranch("MC_z_vertex",mc_tree.z_vertex)
+                    self.outTree.fillBranch("MC_x_vertex_end",mc_tree.x_vertex_end)
+                    self.outTree.fillBranch("MC_y_vertex_end",mc_tree.y_vertex_end)
+                    self.outTree.fillBranch("MC_z_vertex_end",mc_tree.z_vertex_end)
+                    self.outTree.fillBranch("MC_2D_pathlength",mc_tree.proj_track_2D)
+#                    print('MC track length is {}.' .format(mc_tree.Px[0]))
 
             if self.options.camera_mode:
                 if obj.InheritsFrom('TH2'):
@@ -244,7 +277,7 @@ class analysis:
                     algo = 'DBSCAN'
                     if self.options.type in ['beam','cosmics']: algo = 'HOUGH'
                     snprod_inputs = {'picture': img_rb_zs, 'pictureHD': img_fr_satcor, 'picturezsHD': img_fr_zs, 'pictureOri': img_fr, 'vignette': self.vignmap, 'name': name, 'algo': algo}
-                    plotpy = options.jobs < 2 # for some reason on macOS this crashes in multicore
+#                    plotpy = options.jobs < 2 # for some reason on macOS this crashes in multicore
                     snprod_params = {'snake_qual': 3, 'plot2D': False, 'plotpy': False, 'plotprofiles': False}
                     snprod = SnakesProducer(snprod_inputs,snprod_params,self.options,self.cg)
                     clusters,snakes = snprod.run()
@@ -321,16 +354,16 @@ if __name__ == '__main__':
             
     setattr(options,'pedfile_fullres_name', 'pedestals/pedmap_run%s_rebin1.root' % (options.pedrun))
     
-    #options.tmpname = "../RecoMango/data/New/histograms_Run%05d.root" % int(options.run)
-
-    USER = os.environ['USER']
-    tmpdir = '/mnt/ssdcache/' if os.path.exists('/mnt/ssdcache/') else '/tmp/'
-    os.system('mkdir -p {tmpdir}/{user}'.format(tmpdir=tmpdir,user=USER))
-    if sw.checkfiletmp(int(options.run)):
-        options.tmpname = "%s/%s/histograms_Run%05d.root" % (tmpdir,USER,int(options.run))
-    else:
-        print ('Downloading file: ' + sw.swift_root_file(options.tag, int(options.run)))
-        options.tmpname = sw.swift_download_root_file(sw.swift_root_file(options.tag, int(options.run)),int(options.run))
+    options.tmpname = "data/histograms_Run%05d.root" % int(options.run)
+    
+   # USER = os.environ['USER']
+    #tmpdir = '/mnt/ssdcache/' if os.path.exists('/mnt/ssdcache/') else '/tmp/'
+    #os.system('mkdir -p {tmpdir}/{user}'.format(tmpdir=tmpdir,user=USER))
+    #if sw.checkfiletmp(int(options.run)):
+    #    options.tmpname = "%s/%s/histograms_Run%05d.root" % (tmpdir,USER,int(options.run))
+    #else:
+    #    print ('Downloading file: ' + sw.swift_root_file(options.tag, int(options.run)))
+    #    options.tmpname = sw.swift_download_root_file(sw.swift_root_file(options.tag, int(options.run)),int(options.run))
     
     if options.justPedestal:
         ana = analysis(options)
